@@ -50,9 +50,9 @@ let getTopology = function(networkId, cb) {
   }
 }
 
-let createNetwork = function(networkId, cb) {
+let createNetwork = function(networkId, rootIp, cb) {
   if(!db[networkId]) {
-    db[networkId] = [];
+    db[networkId] = [["*/0", rootIp]];
     cb();
   } else {
     cb({error: "NETWORK_EXISTS"});

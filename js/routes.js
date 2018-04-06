@@ -4,8 +4,9 @@ let uuid = require("uuid/v4")
 module.exports = function(router) {
   router.post("/network", function(req, res, next) {
     let networkId = uuid();
+    let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
-    db.createNetwork(networkId, function(err) {
+    db.createNetwork(networkId, ip, function(err) {
       if(!err) {
         res.send(networkId);
       } else {
@@ -30,7 +31,7 @@ module.exports = function(router) {
   router.post("/network/:networkId/channel/:channel", function(req, res, next) {
     let network = req.params.networkId;
     let channel = req.params.channel;
-    let ip = req.connection.remoteAddress;
+    let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     
     db.join(network, channel, ip, function(err) {
       if(!err) {
@@ -44,7 +45,7 @@ module.exports = function(router) {
   router.delete("/network/:networkId/channel/:channel", function(req, res, next) {
     let network = req.params.networkId;
     let channel = req.params.channel;
-    let ip = req.connection.remoteAddress;
+    let ip = req.headers['x-forwarded-for'] ||  req.connection.remoteAddress;
     
     db.leave(network, channel, ip, function(err) {
       if(!err) {
