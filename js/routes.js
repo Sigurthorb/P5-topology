@@ -1,5 +1,5 @@
 let db = require("./db.js");
-let uuid = require("uuid/v1")
+let uuid = require("uuid/v4")
 
 module.exports = function(router) {
   router.post("/network/create", function(req, res, next) {
