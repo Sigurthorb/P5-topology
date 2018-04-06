@@ -1,12 +1,13 @@
 let db = require("./db.js");
+let uuid = require("uuid/v1")
 
 module.exports = function(router) {
-  router.post("/network/:networkId/create", function(req, res, next) {
-    let network = req.params.networkId;
+  router.post("/network/create", function(req, res, next) {
+    let networkId = uuid();
 
-    db.createNetwork(network, function(err) {
+    db.createNetwork(networkId, function(err) {
       if(!err) {
-        res.send();
+        res.send(networkId);
       } else {
         res.status(409).send(err);
       }
