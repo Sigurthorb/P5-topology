@@ -14,4 +14,4 @@ app.use(function(err, req, res, next) {
   res.status(500).send({error: "UNKNOWN_ERROR"});
 });
 
-app.listen(8080);
+app.listen(process.env.PORT || 80);
