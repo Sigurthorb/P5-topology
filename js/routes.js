@@ -2,7 +2,7 @@ let db = require("./db.js");
 let uuid = require("uuid/v4")
 
 module.exports = function(router) {
-  router.post("/network/create", function(req, res, next) {
+  router.post("/network", function(req, res, next) {
     let networkId = uuid();
 
     db.createNetwork(networkId, function(err) {
@@ -14,7 +14,7 @@ module.exports = function(router) {
     });
   });
 
-  router.get("/network/:networkId/topology", function(req, res, next) {
+  router.get("/network/:networkId", function(req, res, next) {
     let network = req.params.networkId;
     let ip = req.connection.remoteAddress;
 
@@ -27,7 +27,7 @@ module.exports = function(router) {
     });
   });
 
-  router.post("/network/:networkId/channel/:channel/join", function(req, res, next) {
+  router.post("/network/:networkId/channel/:channel", function(req, res, next) {
     let network = req.params.networkId;
     let channel = req.params.channel;
     let ip = req.connection.remoteAddress;
@@ -41,7 +41,7 @@ module.exports = function(router) {
     });
   });
 
-  router.post("/network/:networkId/channel/:channel/leave", function(req, res, next) {
+  router.delete("/network/:networkId/channel/:channel", function(req, res, next) {
     let network = req.params.networkId;
     let channel = req.params.channel;
     let ip = req.connection.remoteAddress;
