@@ -1,63 +1,87 @@
-
 let db = {};
 
-let join = function(networkId, channel, ip, cb) {
+let join = function(networkId, channel, cb) {
   if(db[networkId]) {
-    db[networkId].push([channel, ip]);
+    db[networkId].push(channel);
     cb();
   } else {
     cb({error: "NETWORK_NOT_FOUND"});
   }
-}
+};
 
-let leave = function(networkId, channel, ip, cb) {
+let leave = function(networkId, channel, cb) {
   if(db[networkId]) {
-    let index = -1;
-    for(var i = 0; i < db[networkId].length; i++) {
-      let entry = db[networkId][i];
-      if(entry[0] === channel && entry[1] === ip) {
-        index = i;
-        break;
-      }
-    }
+    let index = db[networkId].indexOf(channel);
 
     if(index >= 0) {
       db[networkId].splice(index, 1);
       cb();
     } else {
-      cb({error: "ENTRY_NOT_FOUND_IN_NETWORK", channel: channel, ip: ip});
+      cb({error: "CHANNEL_NOT_FOUND"});
     }
   } else {
     cb({error: "NETWORK_NOT_FOUND"});
   }
-}
+};
 
+let getChannelsApplicability = function(channels) {
+  let applicability = {};
+  for(let i = 0; i < channels.length; i++) {
+    let channelAppliesTo = channels[i];
+    // channels should count them selfs
+    // happens here to exclude equal size channels
+    let result = [channelAppliesTo];
+    for(let j = 0; j < channels.length; j++) {
+      let channel = channels[j];
+
+      if(channelAppliesTo.length > channel.length) {
+        // channelAppliesTo is higher in the tree
+        if(channelAppliesTo.startsWith(channel)) {
+          result.push(channel);
+        }
+      } else if (channelAppliesTo.length < channel.length) {
+        // channelAppliesTo is lower in the tree
+        if(channel.startsWith(channelAppliesTo)) {
+          result.push(channel);
+        }
+      }
+    }
+    applicability[channelAppliesTo] = result;
+  }
+  return applicability;
+};
 
 let getTopology = function(networkId, cb) {
   if(db[networkId]) {
-    // TODO: Currently only returning exact number in channel, not users in sub-channels. need to decide on channel string format for parent channel addition
     let topology = {};
-    for(var i = 0; i < db[networkId].length; i++) {
-      let channel = db[networkId][i][0];
-      if(!topology[channel]) {
-        topology[channel] = 0;
+    let applicability = getChannelsApplicability(db[networkId]);
+
+    // go through each channel
+    for(let i = 0; i < db[networkId].length; i++) {
+      let channel = db[networkId][i];
+      // Add to the channels it applies to
+      for(let j = 0; j < applicability[channel].length; j++) {
+        let applicableChannel = applicability[channel][j];
+        if(!topology[applicableChannel]) {
+          topology[applicableChannel] = 0;
+        }
+        topology[applicableChannel]++;
       }
-      topology[channel]++;
     }
     cb(null, topology);
   } else {
     cb({error: "NETWORK_NOT_FOUND"});
   }
-}
+};
 
-let createNetwork = function(networkId, rootIp, cb) {
+let createNetwork = function(networkId, cb) {
   if(!db[networkId]) {
-    db[networkId] = [["*/0", rootIp]];
+    db[networkId] = [""];
     cb();
   } else {
     cb({error: "NETWORK_EXISTS"});
   }
-}
+};
 
 module.exports = {
   join: join,
