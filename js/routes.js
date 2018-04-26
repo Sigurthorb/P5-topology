@@ -1,13 +1,15 @@
 let db = require("./db.js");
-let uuid = require("uuid/v4")
+let uuid = require("uuid/v4");
 
 module.exports = function(router) {
   router.post("/network", function(req, res, next) {
     let networkId = uuid();
+    let io = req.app.get('socketio');
 
-    db.createNetwork(networkId, function(err) {
+    db.createNetwork(networkId, function(data, err) {
       if(!err) {
         res.send(networkId);
+        io.emit('topology-change', data);
       } else {
         res.status(409).send(err);
       }
@@ -29,10 +31,12 @@ module.exports = function(router) {
   router.post("/network/:networkId/channel/:channel", function(req, res, next) {
     let network = req.params.networkId;
     let channel = req.params.channel;
+    let io = req.app.get('socketio');
     
-    db.join(network, channel, function(err) {
+    db.join(network, channel, function(data, err) {
       if(!err) {
         res.send();
+        io.emit('topology-change', data);
       } else {
         res.status(404).send(err);
       }
@@ -42,10 +46,12 @@ module.exports = function(router) {
   router.delete("/network/:networkId/channel/:channel", function(req, res, next) {
     let network = req.params.networkId;
     let channel = req.params.channel;
+    let io = req.app.get('socketio');
     
     db.leave(network, channel, function(err) {
       if(!err) {
         res.send();
+        io.emit('topology-change', data);
       } else {
         res.status(404).send(err);
       }

@@ -3,9 +3,9 @@ let db = {};
 let join = function(networkId, channel, cb) {
   if(db[networkId]) {
     db[networkId].push(channel);
-    cb();
+    cb(db);
   } else {
-    cb({error: "NETWORK_NOT_FOUND"});
+    cb(db, {error: "NETWORK_NOT_FOUND"});
   }
 };
 
@@ -15,9 +15,9 @@ let leave = function(networkId, channel, cb) {
 
     if(index >= 0) {
       db[networkId].splice(index, 1);
-      cb();
+      cb(db);
     } else {
-      cb({error: "CHANNEL_NOT_FOUND"});
+      cb(db, {error: "CHANNEL_NOT_FOUND"});
     }
   } else {
     cb({error: "NETWORK_NOT_FOUND"});
@@ -77,15 +77,20 @@ let getTopology = function(networkId, cb) {
 let createNetwork = function(networkId, cb) {
   if(!db[networkId]) {
     db[networkId] = [""];
-    cb();
+    cb(db);
   } else {
-    cb({error: "NETWORK_EXISTS"});
+    cb(db, {error: "NETWORK_EXISTS"});
   }
+};
+
+let getDB = function(){
+  return db;
 };
 
 module.exports = {
   join: join,
   createNetwork: createNetwork,
   leave: leave,
-  getTopology: getTopology
+  getTopology: getTopology,
+  getDB:getDB
 }
