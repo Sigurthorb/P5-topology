@@ -3,9 +3,9 @@ let db = {};
 let join = function(networkId, channel, cb) {
   if(db[networkId]) {
     db[networkId].push(channel);
-    cb(db);
+    cb(null, db);
   } else {
-    cb(db, {error: "NETWORK_NOT_FOUND"});
+    cb({error: "NETWORK_NOT_FOUND"});
   }
 };
 
@@ -15,9 +15,12 @@ let leave = function(networkId, channel, cb) {
 
     if(index >= 0) {
       db[networkId].splice(index, 1);
-      cb(db);
+      if(db[networkId].length === 0) {
+        delete db[networkId];
+      }
+      cb(null, db);
     } else {
-      cb(db, {error: "CHANNEL_NOT_FOUND"});
+      cb({error: "CHANNEL_NOT_FOUND"});
     }
   } else {
     cb({error: "NETWORK_NOT_FOUND"});
@@ -77,9 +80,9 @@ let getTopology = function(networkId, cb) {
 let createNetwork = function(networkId, cb) {
   if(!db[networkId]) {
     db[networkId] = [""];
-    cb(db);
+    cb(null, db);
   } else {
-    cb(db, {error: "NETWORK_EXISTS"});
+    cb({error: "NETWORK_EXISTS"});
   }
 };
 

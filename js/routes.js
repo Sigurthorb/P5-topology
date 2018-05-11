@@ -6,7 +6,7 @@ module.exports = function(router) {
     let networkId = uuid();
     let io = req.app.get('socketio');
 
-    db.createNetwork(networkId, function(data, err) {
+    db.createNetwork(networkId, function(err, data) {
       if(!err) {
         res.send(networkId);
         io.emit('topology-change', data);
@@ -33,7 +33,7 @@ module.exports = function(router) {
     let channel = req.params.channel;
     let io = req.app.get('socketio');
     
-    db.join(network, channel, function(data, err) {
+    db.join(network, channel, function(err, data) {
       if(!err) {
         res.send();
         io.emit('topology-change', data);
@@ -48,7 +48,7 @@ module.exports = function(router) {
     let channel = req.params.channel;
     let io = req.app.get('socketio');
     
-    db.leave(network, channel, function(err) {
+    db.leave(network, channel, function(err, data) {
       if(!err) {
         res.send();
         io.emit('topology-change', data);

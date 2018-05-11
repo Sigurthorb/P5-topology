@@ -33,14 +33,12 @@ $(function () {
     var socket = io();
 
     socket.on('topology-change', function(networks){
-        data = networks;
+        networkKeys = Object.keys(networks).reverse();
+
         let preVal = $('#network-selector').val();
         $('#network-selector').empty();
-        for (var network in networks) {
-            // check if the property/key is defined in the object itself, not in parent
-            if (networks.hasOwnProperty(network)) {
-                $('#network-selector').append($("<option>").attr('value', network).text(network));
-            }
+        for (var key in networkKeys) {
+            $('#network-selector').append($("<option>").attr('value', networks[key]).text(networks[key]));
         }
         //If there was a network selected previously, select it again
         if(preVal){
