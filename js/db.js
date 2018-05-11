@@ -1,8 +1,31 @@
+let redis = null;
+
+if (process.env.REDISTOGO_URL) {
+  // inside if statement
+  let rtg   = require("url").parse(process.env.REDISTOGO_URL);
+  redis = require("redis").createClient(rtg.port, rtg.hostname);
+
+  redis.auth(rtg.auth.split(":")[1]);
+} else {
+  redis = require("redis").createClient();
+}
+
 let db = {};
+
+redis.get('topology', function(err, reply) {
+  if(!err && reply) {
+    db = JSON.parse(reply);
+  }
+});
+
+let saveDb = function() {
+  redis.set("topology", JSON.stringify(db));
+}
 
 let join = function(networkId, channel, cb) {
   if(db[networkId]) {
     db[networkId].push(channel);
+    saveDb();
     cb(null, db);
   } else {
     cb({error: "NETWORK_NOT_FOUND"});
@@ -18,6 +41,7 @@ let leave = function(networkId, channel, cb) {
       if(db[networkId].length === 0) {
         delete db[networkId];
       }
+      saveDb();
       cb(null, db);
     } else {
       cb({error: "CHANNEL_NOT_FOUND"});
@@ -80,6 +104,7 @@ let getTopology = function(networkId, cb) {
 let createNetwork = function(networkId, cb) {
   if(!db[networkId]) {
     db[networkId] = [""];
+    saveDb();
     cb(null, db);
   } else {
     cb({error: "NETWORK_EXISTS"});

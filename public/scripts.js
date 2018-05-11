@@ -33,19 +33,23 @@ $(function () {
     var socket = io();
 
     socket.on('topology-change', function(networks){
-        networkKeys = Object.keys(networks).reverse();
+        data = networks;
+        let networkKeys = Object.keys(networks).reverse();
 
         let preVal = $('#network-selector').val();
         $('#network-selector').empty();
-        for (var key in networkKeys) {
-            $('#network-selector').append($("<option>").attr('value', networks[key]).text(networks[key]));
+        for (let i = 0; i < networkKeys.length; i++) {
+            $('#network-selector').append($("<option>").attr('value', networkKeys[i]).text(networkKeys[i]));
         }
         //If there was a network selected previously, select it again
         if(preVal){
           $('#network-selector').val(preVal);  
         }
-            
-        /*if(!$.isEmptyObject(data))*/ renderTree(data[$('#network-selector').val()]);
+        
+        let currVal = networks[$('#network-selector').val()];
+        if(currVal) {
+          renderTree(currVal);
+        }
     });
 
     $('#network-selector').change(() => {
