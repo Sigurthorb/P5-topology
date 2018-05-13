@@ -57,6 +57,21 @@ module.exports = function(router) {
       }
     });
   });
+
+  // root leaving
+  router.delete("/network/:networkId/channel", function(req, res, next) {
+    let network = req.params.networkId;
+    let io = req.app.get('socketio');
+    
+    db.leave(network, "", function(err, data) {
+      if(!err) {
+        res.send();
+        io.emit('topology-change', data);
+      } else {
+        res.status(404).send(err);
+      }
+    });
+  });
   
   return router;
 }
