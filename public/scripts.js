@@ -49,6 +49,8 @@ $(function () {
         let currVal = networks[$('#network-selector').val()];
         if(currVal) {
           renderTree(currVal);
+        } else if (networkKeys.length > 0){
+          renderTree(networkKeys[0])
         }
     });
 
