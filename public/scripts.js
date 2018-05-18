@@ -10,8 +10,9 @@ function convertTopology(topology){
         let node = {
             text: { name: ch }
         };
+        let parent = nodes['n' + ch.substring(0, ch.length-1)]
         if(ch.length) {
-            node.parent = nodes['n' + ch.substring(0, ch.length-1)];
+            if(parent) node.parent = parent;
         } else {
             node.text.name = "root";
         }
